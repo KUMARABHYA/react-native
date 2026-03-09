@@ -21,50 +21,16 @@ import {
 } from './analytics';
 import ProductCard from './src/components/ProductCard';
 import CartItem from './src/components/CartItem';
+import { getProducts } from './src/api/products';
 
 const Stack = createNativeStackNavigator();
 
-const PRODUCTS = [
-  {
-    id: '1',
-    name: 'Wireless Headphones',
-    price: 59.99,
-    image:
-      'https://images.pexels.com/photos/3394664/pexels-photo-3394664.jpeg?auto=compress&cs=tinysrgb&w=800',
-    description:
-      'Comfortable over‑ear wireless headphones with deep bass and up to 30 hours of battery life.',
-    tag: 'Best seller',
-  },
-  {
-    id: '2',
-    name: 'Smart Watch',
-    price: 129.0,
-    image:
-      'https://images.pexels.com/photos/267394/pexels-photo-267394.jpeg?auto=compress&cs=tinysrgb&w=800',
-    description:
-      'Track your health, receive notifications, and control music directly from your wrist.',
-    tag: 'New',
-  },
-  {
-    id: '3',
-    name: 'Minimal Chair',
-    price: 89.5,
-    image:
-      'https://images.pexels.com/photos/116910/pexels-photo-116910.jpeg?auto=compress&cs=tinysrgb&w=800',
-    description:
-      'Scandinavian‑inspired wooden chair with a comfortable cushion and clean modern lines.',
-    tag: 'Home',
-  },
-  {
-    id: '4',
-    name: 'Desk Lamp',
-    price: 39.99,
-    image:
-      'https://images.pexels.com/photos/112811/pexels-photo-112811.jpeg?auto=compress&cs=tinysrgb&w=800',
-    description:
-      'LED desk lamp with adjustable arm and three color temperatures for focused work.',
-    tag: 'Workspace',
-  },
+// Fallback when backend is not running (e.g. ERR_CONNECTION_REFUSED)
+const FALLBACK_PRODUCTS = [
+  { id: '1', name: 'Wireless Headphones', price: 59.99, packName: 'Standard Pack', image: 'https://images.pexels.com/photos/3394664/pexels-photo-3394664.jpeg?auto=compress&cs=tinysrgb&w=800', description: 'Comfortable over‑ear wireless headphones with deep bass and up to 30 hours of battery life.', tag: 'Best seller' },
+  { id: '2', name: 'Smart Watch', price: 129, packName: 'Single Unit', image: 'https://images.pexels.com/photos/267394/pexels-photo-267394.jpeg?auto=compress&cs=tinysrgb&w=800', description: 'Track your health, receive notifications, and control music directly from your wrist.', tag: 'New' },
+  { id: '3', name: 'Minimal Chair', price: 89.5, packName: '1 Piece', image: 'https://images.pexels.com/photos/116910/pexels-photo-116910.jpeg?auto=compress&cs=tinysrgb&w=800', description: 'Scandinavian‑inspired wooden chair with a comfortable cushion and clean modern lines.', tag: 'Home' },
+  { id: '4', name: 'Desk Lamp', price: 39.99, packName: 'Box Pack', image: 'https://images.pexels.com/photos/112811/pexels-photo-112811.jpeg?auto=compress&cs=tinysrgb&w=800', description: 'LED desk lamp with adjustable arm and three color temperatures for focused work.', tag: 'Workspace' },
 ];
 
 const formatCurrency = (value) => `₹${value.toFixed(2)}`;
@@ -174,9 +140,28 @@ const LoginScreen = ({ navigation }) => {
 const HomeScreen = ({ navigation, route }) => {
   const cart = route.params?.cart ?? [];
   const phone = route.params?.phone;
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [usingFallback, setUsingFallback] = useState(false);
 
   useEffect(() => {
     getMixpanel().catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    getProducts()
+      .then((data) => {
+        setProducts(Array.isArray(data) ? data : []);
+        setError(null);
+        setUsingFallback(false);
+      })
+      .catch(() => {
+        setProducts(FALLBACK_PRODUCTS);
+        setError(null);
+        setUsingFallback(true);
+      })
+      .finally(() => setLoading(false));
   }, []);
 
   const handleLogout = () => {
@@ -229,14 +214,26 @@ const HomeScreen = ({ navigation, route }) => {
           </View>
         </View>
         <Text style={styles.sectionTitle}>Featured products</Text>
+        {usingFallback ? (
+          <Text style={styles.fallbackHint}>Backend offline — showing demo products. Run: cd backend && npm start</Text>
+        ) : null}
 
-        <FlatList
-          data={PRODUCTS}
-          keyExtractor={(item) => item.id}
-          renderItem={renderItem}
-          contentContainerStyle={styles.listContent}
-          showsVerticalScrollIndicator={false}
-        />
+        {loading ? (
+          <View style={styles.loadingWrap}>
+            <Text style={styles.loadingText}>Loading products...</Text>
+          </View>
+        ) : (
+          <FlatList
+            data={products}
+            keyExtractor={(item) => item.id}
+            renderItem={renderItem}
+            contentContainerStyle={styles.listContent}
+            showsVerticalScrollIndicator={false}
+            ListEmptyComponent={
+              <Text style={styles.emptyText}>No products. Start the backend: cd backend && npm start</Text>
+            }
+          />
+        )}
       </View>
     </SafeAreaView>
   );
@@ -524,6 +521,27 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#e5e7eb',
     marginBottom: 12,
+  },
+  loadingWrap: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 40,
+  },
+  loadingText: {
+    color: '#9ca3af',
+    fontSize: 15,
+  },
+  fallbackHint: {
+    color: '#f59e0b',
+    fontSize: 12,
+    marginBottom: 8,
+  },
+  emptyText: {
+    color: '#9ca3af',
+    fontSize: 14,
+    textAlign: 'center',
+    paddingVertical: 24,
   },
   inputWrapper: {
     flexDirection: 'row',

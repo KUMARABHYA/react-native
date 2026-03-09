@@ -1,0 +1,38 @@
+[
+  {
+    "id": "1",
+    "name": "Wireless Headphones",
+    "price": 59.99,
+    "packName": "Standard Pack",
+    "image": "https://images.pexels.com/photos/3394664/pexels-photo-3394664.jpeg?auto=compress&cs=tinysrgb&w=800",
+    "description": "Comfortable over‑ear wireless headphones with deep bass and up to 30 hours of battery life.",
+    "tag": "Best seller"
+  },
+  {
+    "id": "2",
+    "name": "Smart Watch",
+    "price": 129,
+    "packName": "Single Unit",
+    "image": "https://images.pexels.com/photos/267394/pexels-photo-267394.jpeg?auto=compress&cs=tinysrgb&w=800",
+    "description": "Track your health, receive notifications, and control music directly from your wrist.",
+    "tag": "New"
+  },
+  {
+    "id": "3",
+    "name": "Minimal Chair",
+    "price": 89.5,
+    "packName": "1 Piece",
+    "image": "https://images.pexels.com/photos/116910/pexels-photo-116910.jpeg?auto=compress&cs=tinysrgb&w=800",
+    "description": "Scandinavian‑inspired wooden chair with a comfortable cushion and clean modern lines.",
+    "tag": "Home"
+  },
+  {
+    "id": "4",
+    "name": "Desk Lamp",
+    "price": 39.99,
+    "packName": "Box Pack",
+    "image": "https://images.pexels.com/photos/112811/pexels-photo-112811.jpeg?auto=compress&cs=tinysrgb&w=800",
+    "description": "LED desk lamp with adjustable arm and three color temperatures for focused work.",
+    "tag": "Workspace"
+  }
+]
